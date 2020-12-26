@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException, 
+from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from . import crud, models, schemas
@@ -9,7 +9,7 @@ from .database import SessionLocal, engine
 from fastapi import Depends, FastAPI, HTTPException, status
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-
+import uvloop
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
