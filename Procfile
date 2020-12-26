@@ -1,1 +1,1 @@
-web: gunicorn -w 4 -k uvicorn.workers.UvicornH11Worker sql_app.main:app
+web: uvicorn application.server.sql_app.main:app --host 0.0.0.0 --workers 2
