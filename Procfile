@@ -1,1 +1,1 @@
-web: uvicorn application.server.sql_app.main:app --host 0.0.0.0 --workers 2
+web: uvicorn sql_app.main:app --host 0.0.0.0 --port $PORT --workers 2
