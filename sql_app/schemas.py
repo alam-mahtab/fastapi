@@ -15,6 +15,10 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     username: str
+    email: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    disabled: Optional[bool] = None
     
 
 
@@ -23,6 +27,7 @@ class UserInDB(User):
 
 class UserCreate(User):
     password: str
+    confirm_password : str
     email: str
     first_name :str
     last_name : str

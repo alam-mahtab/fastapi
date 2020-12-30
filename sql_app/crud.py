@@ -39,11 +39,13 @@ def get_user(db, username: str):
     return db.query(models.User).filter(models.User.username == username).first()
 
 def create_user(db: Session, user: schemas.UserCreate):
-    db_user = models.User(username=user.username, email=user.email, first_name = user.first_name, last_name = user.last_name,dateofbirth = user.dateofbirth, phone = user.phone,hashed_password=get_password_hash(user.password))
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    db_user = models.User(username=user.username, email=user.email, first_name = user.first_name, last_name = user.last_name,dateofbirth = user.dateofbirth, phone = user.phone,hashed_password=get_password_hash(user.password),confirm_password=get_password_hash(user.confirm_password))
+    if user.password == user.confirm_password:
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+        
 
 def authenticate_user(fake_db, username: str, password: str):
     user = get_user(fake_db, username)

@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from . import crud, models, schemas
@@ -9,7 +9,7 @@ from .database import SessionLocal, engine
 from fastapi import Depends, FastAPI, HTTPException, status
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-import uvloop
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -46,6 +46,11 @@ async def get_current_user( db: Session = Depends(get_db), token: str = Depends(
         raise credentials_exception
     return user
 
+async def get_current_active_user(current_user: models.User = Depends(get_current_user)):
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
 
 @app.post("/token", response_model=schemas.Token)
 async def login_for_access_token(db: Session = Depends(get_db),form_data: OAuth2PasswordRequestForm = Depends()):
@@ -64,7 +69,7 @@ async def login_for_access_token(db: Session = Depends(get_db),form_data: OAuth2
 
 
 @app.get("/users/me/")
-async def read_users_me(current_user: models.User = Depends(get_current_user)):
+async def read_users_me(current_user: models.User = Depends(get_current_active_user)):
     return current_user
 
 @app.post("/users/")
