@@ -47,9 +47,10 @@ async def get_current_user( db: Session = Depends(get_db), token: str = Depends(
     return user
 
 async def get_current_active_user(current_user: models.User = Depends(get_current_user)):
-    if current_user.disabled:
+    if current_user.is_active == False:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
 
 
 @app.post("/token", response_model=schemas.Token)
@@ -70,6 +71,7 @@ async def login_for_access_token(db: Session = Depends(get_db),form_data: OAuth2
 
 @app.get("/users/me/")
 async def read_users_me(current_user: models.User = Depends(get_current_active_user)):
+   # user = crud.get_user(db, username=token_data)
     return current_user
 
 @app.post("/users/")
@@ -78,7 +80,27 @@ def create_user(
 ):
     return crud.create_user(db=db, user=user)
 
+@app.post("/login/")
+async def login(db: Session = Depends(get_db), form_data:OAuth2PasswordRequestForm = Depends()):
+    user = crud.authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    # user = get_current_user
+    # hashed_password = (form_data.password)
+    # if not hashed_password == user.hashed_password:
+    #     raise HTTPException(status_code=400, detail="Incorrect username or password")
 
+    return {"access_token": user.username, "token_type": "bearer"}
+
+
+# def login(
+#     user: schemas.Userlogin, db: Session = Depends(get_db)
+# ):
+#     return crud.get_user(db=db, username=username)
 # @app.get("/items/", response_model=List[schemas.Item])
 # def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 #     items = crud.get_items(db, skip=skip, limit=limit)
