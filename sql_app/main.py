@@ -18,7 +18,7 @@ app = FastAPI()
 
 origins = [
     "http://fastapi-demo.herokuapp.com",
-    "https://fastapi-demo.herokuapp.com",
+    "https://fastapi-demo.herokuapp.com/users",
     "http://localhost",
     "http://localhost:8000",]
 
