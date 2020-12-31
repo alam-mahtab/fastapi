@@ -4,28 +4,36 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from . import crud, models, schemas
-from fastapi.middleware.cors import CORSMiddleware
-
+#from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
 from .database import SessionLocal, engine
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
+from fastapi.responses import RedirectResponse
 
-models.Base.metadata.create_all(bind=engine)
+
+#models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 origins = [
-    "http://fastapi-demo.herokuapp.com",
+    "https://fastapi-demo.herokuapp.com",
     "https://fastapi-demo.herokuapp.com/users",
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
     "http://localhost",
-    "http://localhost:8000",]
+    "https://localhost",
+    "https://localhost:8080",
+    "http://127.0.0.1:8000",
+    "https://127.0.0.1:8000"
+    ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -90,12 +98,18 @@ async def login_for_access_token(db: Session = Depends(get_db),form_data: OAuth2
 async def read_users_me(current_user: models.User = Depends(get_current_active_user)):
    # user = crud.get_user(db, username=token_data)
     return current_user
-
+    #return RedirectResponse(current_user,url="/users/me",)
+    # , status_code=status.HTTP_303_SEE_OTHER)
 @app.post("/users/")
 def create_user(
     user: schemas.UserCreate, db: Session = Depends(get_db)
 ):
-    return crud.create_user(db=db, user=user)
+   return crud.create_user(db=db, user=user)
+    # , status_code=status.HTTP_303_SEE_OTHER)
+    #return RedirectResponse(url="/users",status_code=status)
+@app.get("/users/")
+async def main(current_user: models.User = Depends(get_current_active_user)):
+    return {"message": "Hello " + current_user + ""}
 
 @app.post("/login/")
 def login(db: Session = Depends(get_db), form_data:OAuth2PasswordRequestForm = Depends()):
