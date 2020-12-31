@@ -4,6 +4,8 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from . import crud, models, schemas
+from fastapi.middleware.cors import CORSMiddleware
+
 from .database import SessionLocal, engine
 
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -13,6 +15,21 @@ from datetime import datetime, timedelta
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+origins = [
+    "http://fastapi-demo.herokuapp.com",
+    "https://fastapi-demo.herokuapp.com",
+    "http://localhost",
+    "http://localhost:8000",]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 # Dependency
@@ -81,7 +98,7 @@ def create_user(
     return crud.create_user(db=db, user=user)
 
 @app.post("/login/")
-async def login(db: Session = Depends(get_db), form_data:OAuth2PasswordRequestForm = Depends()):
+def login(db: Session = Depends(get_db), form_data:OAuth2PasswordRequestForm = Depends()):
     user = crud.authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -89,12 +106,10 @@ async def login(db: Session = Depends(get_db), form_data:OAuth2PasswordRequestFo
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    # user = get_current_user
-    # hashed_password = (form_data.password)
-    # if not hashed_password == user.hashed_password:
-    #     raise HTTPException(status_code=400, detail="Incorrect username or password")
-
     return {"access_token": user.username, "token_type": "bearer"}
+
+#if user.is_authenticated:   
+#@app.post("/logout/")
 
 
 # def login(
