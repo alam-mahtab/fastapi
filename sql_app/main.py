@@ -108,7 +108,7 @@ def create_user(
     # , status_code=status.HTTP_303_SEE_OTHER)
     #return RedirectResponse(url="/users",status_code=status)
 @app.get("/users/")
-async def main(current_user: models.User = Depends(get_current_active_user)):
+async def main(current_user: models.User = Depends(get_current_user)):
     return {"message": "Hello " + current_user + ""}
 
 @app.post("/login/")
@@ -121,7 +121,9 @@ def login(db: Session = Depends(get_db), form_data:OAuth2PasswordRequestForm = D
             headers={"WWW-Authenticate": "Bearer"},
         )
     return {"access_token": user.username, "token_type": "bearer"}
-
+@app.get("/login/")
+def test():
+    return {"message": "Hello " }
 #if user.is_authenticated:   
 #@app.post("/logout/")
 

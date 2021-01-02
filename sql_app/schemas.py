@@ -33,4 +33,6 @@ class UserCreate(User):
     phone : str
     dateofbirth : date
 
+class UserDB(User):
+    pass
 
