@@ -107,9 +107,7 @@ def create_user(
    return crud.create_user(db=db, user=user)
     # , status_code=status.HTTP_303_SEE_OTHER)
     #return RedirectResponse(url="/users",status_code=status)
-@app.get("/users/")
-def get_user(username: str, password: str):
-    return {"message": "Hello " + username + ""}
+
 
 @app.post("/login/")
 def login(db: Session = Depends(get_db), form_data:OAuth2PasswordRequestForm = Depends()):
@@ -121,10 +119,9 @@ def login(db: Session = Depends(get_db), form_data:OAuth2PasswordRequestForm = D
             headers={"WWW-Authenticate": "Bearer"},
         )
     return {"access_token": user.username, "token_type": "bearer"}
-@app.get("/login/")
-def get_user(db, username: str):
+
     
-    return {"message": "Hello "+ username + "" }
+   
 #if user.is_authenticated:   
 #@app.post("/logout/")
 
